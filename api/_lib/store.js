@@ -31,7 +31,7 @@ const fileStore = {
   },
 
   async saveProjects() {
-    throw Object.assign(new Error('Este despliegue es de solo lectura. Define GITHUB_REPO o DATABASE_PATH.'), {
+    throw Object.assign(new Error(diagnosticoAlmacenamiento()), {
       code: 'READ_ONLY',
     });
   },
@@ -41,7 +41,7 @@ const fileStore = {
   },
 
   async saveUsers() {
-    throw Object.assign(new Error('Este despliegue es de solo lectura. Define GITHUB_REPO o DATABASE_PATH.'), {
+    throw Object.assign(new Error(diagnosticoAlmacenamiento()), {
       code: 'READ_ONLY',
     });
   },
@@ -68,9 +68,46 @@ export const store = pick();
 export const STORE_NAME = store.name;
 export const IS_READ_ONLY = Boolean(store.readOnly);
 
+/* Un error genérico ("configura GITHUB_REPO") no sirve de nada si no dice
+   cuál de las dos falta, ni en qué entorno hay que ponerla, ni que cambiar
+   una variable en Vercel no redeploya por sí solo. */
+export function diagnosticoAlmacenamiento() {
+  const enVercel = Boolean(process.env.VERCEL);
+  const repoFalta = !process.env.GITHUB_REPO;
+  const tokenFalta = !process.env.GITHUB_TOKEN;
+
+  if (enVercel) {
+    if (repoFalta || tokenFalta) {
+      const faltan = [
+        repoFalta && 'GITHUB_REPO',
+        tokenFalta && 'GITHUB_TOKEN',
+      ].filter(Boolean);
+      return (
+        `Faltan variables de entorno en Vercel (${faltan.join(' y ')}). ` +
+        'En el proyecto: Settings → Environment Variables. Pon ' +
+        'GITHUB_REPO=EAJRD/Multimedia-EFR y un GITHUB_TOKEN que sea un token ' +
+        'fino de GitHub con permiso Contents: Read and write sobre ese repo. ' +
+        'Marca Production, Preview y Development, y luego Redeploy: ' +
+        'cambiar una variable no redeploya solo.'
+      );
+    }
+    return (
+      'GITHUB_REPO y GITHUB_TOKEN están puestos, pero el backend salió de solo ' +
+      'lectura. Revisa que el token no haya caducado y que el repositorio sea ' +
+      'ese mismo, y haz Redeploy.'
+    );
+  }
+
+  return (
+    'Almacenamiento de solo lectura: define DATABASE_PATH para usar SQLite, o ' +
+    'GITHUB_REPO y GITHUB_TOKEN para usar GitHub. Si esperabas que el .env se ' +
+    'leyera solo, arranca con "npm start": el .env lo carga el script, no Node.'
+  );
+}
+
 export function requireWritable() {
   if (IS_READ_ONLY) {
-    throw Object.assign(new Error('Almacenamiento de solo lectura: configura GITHUB_REPO o DATABASE_PATH.'), {
+    throw Object.assign(new Error(diagnosticoAlmacenamiento()), {
       code: 'READ_ONLY',
     });
   }

@@ -178,6 +178,99 @@ await check('GET /api/auth sin sesión → autenticado:false', async () => {
   assert.equal(r.body.autenticado, false);
 });
 
+/* --- caché: el admin nunca debe leer de la CDN --- */
+
+await check('GET /api/projects anónimo se puede cachear 1 minuto', async () => {
+  const r = await fetch(BASE + '/api/projects');
+  assert.match(r.headers.get('cache-control') || '', /max-age=60/);
+  assert.equal(r.headers.get('vary'), 'Cookie');
+});
+
+await check('GET /api/projects con cookie va con no-store', async () => {
+  // Se comprueba antes de iniciar sesión, con una cookie cualquiera: lo que
+  // cuenta es que el backend no fíe en la caché si viene una.
+  const r = await fetch(BASE + '/api/projects', { headers: { cookie: 'mm_sesion=cualquiera' } });
+  assert.equal(r.headers.get('cache-control'), 'no-store', 'el panel podría leer contenido viejo');
+});
+
+/* --- el diagnóstico de solo lectura tiene que ser accionable --- */
+
+await check('el diagnóstico nombra las variables que faltan', async () => {
+  const antes = { ...process.env };
+  delete process.env.GITHUB_REPO;
+  delete process.env.GITHUB_TOKEN;
+  delete process.env.DATABASE_PATH;
+  delete process.env.VERCEL;
+  try {
+    const { diagnosticoAlmacenamiento } = await import('../api/_lib/store.js?' + Date.now());
+    const enLocal = diagnosticoAlmacenamiento();
+    assert.ok(/DATABASE_PATH/.test(enLocal), 'no sugiere la variable local');
+    assert.ok(/npm start/.test(enLocal), 'no dice cómo se carga el .env');
+
+    process.env.VERCEL = '1';
+    const enVercel = diagnosticoAlmacenamiento();
+    assert.ok(/GITHUB_REPO/.test(enVercel) && /GITHUB_TOKEN/.test(enVercel), 'no nombra las de Vercel');
+    assert.ok(/Redeploy/i.test(enVercel), 'no avisa de que cambiar una variable no redeploya');
+  } finally {
+    for (const k of Object.keys(process.env)) if (!(k in antes)) delete process.env[k];
+    Object.assign(process.env, antes);
+  }
+});
+
+await check('un despliegue en Vercel sin variables da 503 con el diagnóstico', async () => {
+  // Esta es la ruta exacta que se-topa alguien con Vercel sin configurar:
+  // el registro sale vacío, el panel ofrece arrancar, y al crear el primer
+  // admin no hay dónde guardarlo. Con variables de solo lectura.
+  const PORT_RO = 3197;
+  // En Vercel el despliegue no trae data/users.json: no está en el repo. En
+  // local sí está, así que hay que quitarlo para reproducir el estado real.
+  const saved = await readFile(USERS_FILE, 'utf8');
+  writeFileSync(USERS_FILE, JSON.stringify({ usuarios: [] }, null, 2) + '\n');
+  const ro = spawn(process.execPath, ['server/index.js'], {
+    cwd: SITE,
+    env: {
+      PATH: process.env.PATH,
+      NODE_ENV: 'production',
+      VERCEL: '1',
+      SESSION_SECRET: 'x'.repeat(64),
+      PORT: String(PORT_RO),
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const logRo = [];
+  ro.stdout.on('data', (d) => logRo.push(d.toString()));
+  ro.stderr.on('data', (d) => logRo.push(d.toString()));
+  try {
+    await new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error('no arrancó: ' + logRo.join(''))), 15000);
+      ro.stdout.on('data', (d) => d.toString().includes('Multimedios en') && (clearTimeout(t), resolve()));
+    });
+
+    // Sin variables, el sitio sigue siendo legible: solo lectura.
+    const listado = await fetch(`http://127.0.0.1:${PORT_RO}/api/projects`);
+    assert.equal(listado.status, 200, 'el contenido público debe seguir leyéndose');
+    assert.equal((await listado.json()).proyectos.length, 7);
+
+    const anon2 = await (await fetch(`http://127.0.0.1:${PORT_RO}/api/auth`)).json();
+    assert.equal(anon2.arranque, true, 'sin registro, debe ofrecer arrancar');
+
+    const res = await fetch(`http://127.0.0.1:${PORT_RO}/api/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accion: 'register', nombre: 'Ada', email: 'ada@x.co', password: PASSWORD,
+      }),
+    });
+    assert.equal(res.status, 503);
+    const cuerpo = await res.json();
+    assert.ok(/GITHUB_REPO/.test(cuerpo.error), 'no dice qué configurar: ' + cuerpo.error);
+    assert.ok(/Redeploy/i.test(cuerpo.error), 'no avisa de que cambiar una variable no redeploya');
+  } finally {
+    ro.kill();
+    writeFileSync(USERS_FILE, saved);
+  }
+});
+
 /* --- registro: el primero se crea a mano en users.json --- */
 
 await check('register sin sesión → 403 cuando ya hay usuarios', async () => {

@@ -58,6 +58,17 @@ body.admin {
   font-size: .88rem;
 }
 
+.login__note {
+  margin: 0 0 16px;
+  padding: 11px 14px;
+  background: rgba(32, 232, 152, .1);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: .88rem;
+}
+.login__note:empty { display: none; }
+
 .login__foot { margin-top: 20px; font-size: .85rem; }
 .login__foot a { color: var(--muted); }
 .login__foot a:hover { color: var(--accent); }

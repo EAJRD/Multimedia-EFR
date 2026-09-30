@@ -26,11 +26,11 @@ sesiones no se puedan falsificar. Genera uno con `openssl rand -hex 32`.
 
 ```bash
 npm test            # 26  sitio público
-npm run test:api    # 50  API, login y panel, con navegador de verdad
-npm run test:cold   # 10  arranque en frío: crear el primer admin
+npm run test:api    # 54  API, login y panel, con navegador de verdad
+npm run test:cold   # 11  arranque en frío: crear el primer admin
 npm run test:caja   # 10  el registro de usuarios no sale en claro al repo
 
-npm run test:all   # las cuatro, 96 en total
+npm run test:all   # las cuatro, 101 en total
 ```
 
 Las tres últimas levantan su propio servidor y su propia base de datos

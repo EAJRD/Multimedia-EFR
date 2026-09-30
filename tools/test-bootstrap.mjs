@@ -124,22 +124,45 @@ await check('GET /api/auth no filtra el contenido del registro vacío', async ()
 await check('el panel ofrece crear el primer admin en vez de pedir login', async () => {
   await abrirPanel();
   assert.equal(await page.locator('#bootstrap').isVisible(), true, 'no aparece el arranque en frío');
-  assert.equal(await page.locator('#loginSubmit').isVisible(), false, 'no debería pedir login todavía');
+  // El login se esconde entero. Si solo se escondiera el botón, los campos
+  // seguirían ahí, sin nada que pulsarlos, y Enter en la contraseña lanzaría
+  // un login imposible. Eso es exactamente lo que pasaba.
+  assert.equal(await page.locator('#loginForm').isVisible(), false, 'el login sigue visible a la vez');
+  assert.equal(await page.locator('#loginSubmit').isVisible(), false, 'el botón de entrar sigue visible');
   assert.equal(await page.locator('#panelView').isHidden(), true, 'el panel no debe abrirse sin sesión');
 });
 
-await check('el arranque en frío se completa desde el navegador', async () => {
+await check('Enter en la contraseña no dispara un login imposible', async () => {
+  await page.fill('#b_nombre', 'Impostor');
+  await page.fill('#b_email', 'impostor@x.co');
+  await page.fill('#b_password', PASSWORD);
+  // El login está escondido, pero su formulario sigue en el DOM: la tecla
+  // Enter lo enviaría igualmente.
+  await page.evaluate(() => {
+    document.getElementById('email').value = 'nadie@x.co';
+    document.getElementById('password').value = 'contrasena-larga';
+    document.getElementById('loginForm').requestSubmit();
+  });
+  await page.waitForTimeout(400);
+  assert.equal(
+    await page.locator('#loginError').isVisible(),
+    false,
+    'salió un error de credenciales cuando aún no se puede iniciar sesión'
+  );
+  assert.equal(await page.locator('#loginForm').isVisible(), false, 'el login sigue escondido');
+});
+
+await check('el arranque en frío se completa y pasa a login', async () => {
   await page.fill('#b_nombre', ADMIN.nombre);
   await page.fill('#b_email', ADMIN.email);
   await page.fill('#b_password', PASSWORD);
   await page.click('#bootstrapSubmit');
-  await page.waitForFunction(
-    () => document.getElementById('bootstrapNote')?.textContent.includes('Admin creado'),
-    null,
-    { timeout: 15000 }
-  );
-  const nota = await page.textContent('#bootstrapNote');
-  assert.ok(!/error/i.test(nota), 'la nota reporta un error: ' + nota);
+  // Al crearse, la vía de arranque se cierra sola y aparece el login, listo
+  // para entrar con la cuenta recién creada.
+  await page.waitForSelector('#loginForm:not([hidden])', { timeout: 15000 });
+  assert.equal(await page.locator('#bootstrap').isVisible(), false, 'el arranque debe cerrarse');
+  assert.match(await page.textContent('#loginNote'), /Admin creado/);
+  assert.equal(await page.inputValue('#email'), ADMIN.email, 'debería rellenar el email para ahorrar teclear');
 });
 
 /* --- 3. Con el admin ya creado --- */

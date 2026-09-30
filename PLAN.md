@@ -27,8 +27,8 @@ Se hospeda en Netlify, Vercel o GitHub Pages arrastrando la carpeta.
 | `MANUAL-DE-MARCA.md` | Reglas de marca (manda sobre el contenido) |
 | `tools/` | Generador de placeholders, 96 pruebas, capturas |
 
-Verificación: `npm run test:all` → **96/96** (26 sitio público, 50 API y
-panel, 10 arranque en frío, 10 cifrado del registro).
+Verificación: `npm run test:all` → **101/101** (26 sitio público, 54 API y
+panel, 11 arranque en frío, 10 cifrado del registro).
 
 Para verlo: `npm install && npm start` → localhost:3000. El primer admin se
 crea desde `admin.html`, en el propio navegador: no hace falta ningún comando.

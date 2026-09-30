@@ -14,6 +14,7 @@ const state = {
   editando: null,
   soloLectura: false,
   backend: 'file',
+  arranque: false, // ¿el registro de usuarios está vacío?
 };
 
 /* ---------- Red ---------- */
@@ -76,8 +77,11 @@ function mostrarLogin() {
   $('panelView').hidden = true;
   $('loginView').hidden = false;
   $('password').value = '';
-  // Con la vía de arranque abierta, el foco va al primer campo de esa, no al login.
-  if ($('bootstrap').hidden) $('email').focus();
+  // Con la vía de arranque abierta, el foco va al primer campo de esa, no al
+  // login, y el login se queda escondido: hay dos formas de entrar y solo
+  // una tiene sentido según si el registro está vacío o no.
+  if (state.arranque) $('b_nombre').focus();
+  else $('email').focus();
 }
 
 function mostrarPanel() {
@@ -347,8 +351,12 @@ async function cargarUsuarios() {
    pasa a exigir sesión de admin. El GET público devuelve solo un booleano. */
 
 function mostrarArranque(vacio) {
+  state.arranque = vacio;
   $('bootstrap').hidden = !vacio;
-  $('loginSubmit').hidden = vacio;
+  // Se oculta el formulario entero, no solo el botón: si solo se esconde el
+  // botón, los campos de email y contraseña se quedan ahí, sin nada que
+  // pulsarlos, y pulsar Enter en la contraseña dispara un login imposible.
+  $('loginForm').hidden = vacio;
   $('loginError').hidden = true;
   if (vacio) $('b_nombre').focus();
 }
@@ -366,12 +374,17 @@ function arrancar() {
       password: $('b_password').value,
     },
   })
-    .then((r) => {
-      note.textContent = `Admin creado. Ya puedes entrar con esa cuenta.`;
+    .then(() => {
+      // Ya hay un admin: la vía de arranque se cierra y toca entrar. Si no se
+      // recarga la página, el formulario de arranque seguiría ahí, con un
+      // segundo intento que la API ya va a rechazar.
+      mostrarArranque(false);
+      $('loginNote').textContent = 'Admin creado. Entra con esa cuenta.';
+      $('email').value = $('b_email').value;
       $('b_nombre').value = '';
       $('b_email').value = '';
       $('b_password').value = '';
-      $('b_nombre').focus();
+      $('email').focus();
     })
     .catch((e) => {
       note.textContent = e.message;
@@ -437,6 +450,10 @@ async function iniciar() {
 
 function entrar(ev) {
   ev.preventDefault();
+  // Cinturón: si el registro está vacío no hay contra qué iniciar sesión.
+  // Con el formulario escondido, alguien aún podría mandar el submit
+  // con Enter y comerse un "credenciales incorrectas" sin sentido.
+  if (state.arranque) return;
   const err = $('loginError');
   err.hidden = true;
   const btn = $('loginSubmit');

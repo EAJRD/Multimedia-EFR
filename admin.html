@@ -29,34 +29,39 @@
     </div>
 
     <p class="login__error" id="loginError" role="alert" hidden></p>
+    <p class="login__note" id="loginNote" role="status"></p>
 
     <button type="submit" class="btn btn--block" id="loginSubmit">Entrar</button>
 
-    <div class="bootstrap" id="bootstrap" hidden>
-      <p class="bootstrap__text">
-        Todavía no hay ningún usuario. Crea el primero: será admin.
-      </p>
-      <div id="bootstrapForm">
-        <div class="field">
-          <label for="b_nombre">Nombre</label>
-          <input type="text" id="b_nombre" autocomplete="name" required>
-        </div>
-        <div class="field">
-          <label for="b_email">Email</label>
-          <input type="email" id="b_email" autocomplete="username" required>
-        </div>
-        <div class="field">
-          <label for="b_password">Contraseña</label>
-          <input type="password" id="b_password" autocomplete="new-password" required>
-          <small class="field__hint">Mínimo 12 caracteres.</small>
-        </div>
-        <button type="button" class="btn btn--block" id="bootstrapSubmit">Crear el primer admin</button>
-        <p class="form__note" id="bootstrapNote" role="status"></p>
-      </div>
-    </div>
-
     <p class="login__foot"><a href="/index.html">← Volver al sitio</a></p>
   </form>
+
+  <!-- Arranque en frío. Va FUERA de #loginForm a propósito: es una forma
+       distinta de entrar, y si estuviera dentro, ocultar el login para
+       mostrar el arranque se llevaría por delante el arranque. -->
+  <div class="bootstrap" id="bootstrap" hidden>
+    <p class="bootstrap__text">
+      Todavía no hay ningún usuario. Crea el primero: será admin.
+    </p>
+    <div id="bootstrapForm">
+      <div class="field">
+        <label for="b_nombre">Nombre</label>
+        <input type="text" id="b_nombre" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="b_email">Email</label>
+        <input type="email" id="b_email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="b_password">Contraseña</label>
+        <input type="password" id="b_password" autocomplete="new-password" required>
+        <small class="field__hint">Mínimo 12 caracteres.</small>
+      </div>
+      <button type="button" class="btn btn--block" id="bootstrapSubmit">Crear el primer admin</button>
+      <p class="form__note" id="bootstrapNote" role="status"></p>
+    </div>
+    <p class="login__foot"><a href="/index.html">← Volver al sitio</a></p>
+  </div>
 </section>
 
 <!-- ================= PANEL ================= -->

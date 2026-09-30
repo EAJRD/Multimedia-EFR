@@ -6,7 +6,7 @@
      DELETE     → { id }                     borra uno
    ============================================ */
 
-import { store, IS_READ_ONLY } from './_lib/store.js';
+import { store, IS_READ_ONLY, diagnosticoAlmacenamiento } from './_lib/store.js';
 import { readSession } from './_lib/session.js';
 import { validateProject, validateCategorias } from './_lib/validate.js';
 import { send, fail, readBody, guard } from './_lib/http.js';
@@ -32,9 +32,17 @@ export const handler = guard(async (req, res) => {
   /* --- público --- */
   if (method === 'GET') {
     const data = await store.getProjects();
+    /* El sitio público puede cachear un minuto. El panel no: si no, tras
+       guardar, el admin recargaría y vería la versión de la CDN, sin su
+       cambio, y un editor podría pisar el trabajo de otro con contenido
+       viejo. Por eso, con cookie, nada de caché. */
+    const conSesion = Boolean(req.headers.cookie);
     return send(res, 200, data, {
-      // El sitio público puede cachear un minuto; el admin, no.
-      'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+      'Cache-Control': conSesion
+        ? 'no-store'
+        : 'public, max-age=60, stale-while-revalidate=300',
+      // Sin esto, la CDN podría servirle a un admin la copia pública.
+      Vary: 'Cookie',
       'X-Store': store.name,
     });
   }
@@ -47,7 +55,7 @@ export const handler = guard(async (req, res) => {
 
   /* --- reemplazar todo --- */
   if (method === 'POST') {
-    if (IS_READ_ONLY) return fail(res, 503, 'Almacenamiento de solo lectura: configura GITHUB_REPO o DATABASE_PATH.');
+    if (IS_READ_ONLY) return fail(res, 503, diagnosticoAlmacenamiento());
 
     const c = validateCategorias(body.categorias);
     if (!c.ok) return fail(res, 400, c.errors.join(' '), { errores: c.errors });
@@ -73,7 +81,7 @@ export const handler = guard(async (req, res) => {
 
   /* --- upsert de uno --- */
   if (method === 'PUT') {
-    if (IS_READ_ONLY) return fail(res, 503, 'Almacenamiento de solo lectura: configura GITHUB_REPO o DATABASE_PATH.');
+    if (IS_READ_ONLY) return fail(res, 503, diagnosticoAlmacenamiento());
 
     const v = validateProject(body.proyecto, cats);
     if (!v.ok) return fail(res, 400, v.errors.join(' '), { errores: v.errors });
@@ -92,7 +100,7 @@ export const handler = guard(async (req, res) => {
 
   /* --- borrar uno --- */
   if (method === 'DELETE') {
-    if (IS_READ_ONLY) return fail(res, 503, 'Almacenamiento de solo lectura: configura GITHUB_REPO o DATABASE_PATH.');
+    if (IS_READ_ONLY) return fail(res, 503, diagnosticoAlmacenamiento());
 
     const id = String(body.id || '');
     const i = data.proyectos.findIndex((p) => p.id === id);
