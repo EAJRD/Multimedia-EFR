@@ -1,0 +1,30 @@
+{
+  "name": "multimedios",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multimedios ECFR — sitio público, panel de administración y API",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --watch server/index.js",
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "dev:vercel": "vercel dev",
+    "create-user": "node --env-file-if-exists=.env tools/create-user.mjs",
+    "placeholders": "node tools/gen-placeholders.mjs",
+    "test": "node tools/smoke.mjs",
+    "test:api": "node tools/test-api.mjs",
+    "test:cold": "node tools/test-bootstrap.mjs",
+    "test:all": "node tools/smoke.mjs && node tools/test-api.mjs && node tools/test-bootstrap.mjs",
+    "shots": "node tools/shots.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

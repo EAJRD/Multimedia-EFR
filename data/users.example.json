@@ -1,0 +1,15 @@
+{
+  "_comentario": "NO subir el registro real: aquí van hashes bcrypt. Copia esta estructura, no el contenido de data/users.json.",
+  "usuarios": [
+    {
+      "id": "u_9f2a1c4b8e0d",
+      "nombre": "Nombre Apellido",
+      "email": "correo@ejemplo.com",
+      "hash": "$2b$12$REEMPLAZAR_CON_EL_HASH_REAL",
+      "rol": "admin",
+      "activo": true,
+      "creado": "2026-01-01T00:00:00.000Z",
+      "actualizado": "2026-01-01T00:00:00.000Z"
+    }
+  ]
+}

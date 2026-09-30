@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+capturas/
+*.log
+.env
+.env.local
+data/multimedios.sqlite*
+
+# El registro de usuarios lleva hashes bcrypt: nunca se versiona.
+# Se crea con `npm run create-user` o con el arranque en frío del panel.
+data/users.json

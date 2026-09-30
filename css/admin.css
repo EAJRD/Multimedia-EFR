@@ -1,0 +1,271 @@
+/* ============================================
+   Admin — login, panel y editor.
+   ============================================ */
+
+body.admin {
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* ---------- Login ---------- */
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login__card {
+  width: min(400px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 44px 34px 30px;
+  text-align: center;
+}
+
+.login__mark {
+  display: grid;
+  place-items: center;
+  width: 56px; height: 56px;
+  margin: 0 auto 20px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+}
+
+.login__title { font-size: 2.4rem; margin-bottom: 4px; }
+.login__sub {
+  color: var(--muted);
+  font-size: .85rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.login .field { text-align: left; }
+
+.login__error {
+  margin: 0 0 16px;
+  padding: 11px 14px;
+  background: rgba(208, 96, 112, .12);
+  border: 1px solid var(--accent-2);
+  border-radius: 8px;
+  color: #f0a6b2;
+  font-size: .88rem;
+}
+
+.login__foot { margin-top: 20px; font-size: .85rem; }
+.login__foot a { color: var(--muted); }
+.login__foot a:hover { color: var(--accent); }
+
+/* ---------- Arranque en frío ---------- */
+
+.bootstrap {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+.bootstrap__text {
+  color: var(--muted);
+  font-size: .88rem;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+/* ---------- Barra ---------- */
+
+.panel__bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: var(--nav-h);
+  padding: 0 24px;
+  background: rgba(11,13,16,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel__who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--muted);
+  font-size: .88rem;
+}
+.panel__who strong { color: var(--text); }
+
+/* ---------- Cuerpo ---------- */
+
+.panel__body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 120px;
+}
+
+.panel__grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .panel__grid { grid-template-columns: 1fr; }
+}
+
+.panel__col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.panel__col--wide { margin-top: 32px; }
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.panel__head h2 { font-family: var(--font-body); font-size: 1.05rem; font-weight: 600; }
+
+.panel__sub { margin: 30px 0 14px; }
+
+.alert {
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  font-size: .9rem;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--muted);
+}
+.alert b { color: var(--text); }
+
+/* ---------- Listas ---------- */
+
+.plist, .clist, .ulist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+.plist button, .clist button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font: inherit;
+  font-size: .9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.plist button:hover, .clist button:hover { border-color: var(--accent); }
+.plist button.is-active { border-color: var(--accent); background: rgba(32,232,152,.09); }
+
+.plist .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+.plist .dot.is-pending { background: var(--muted); }
+
+.plist .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plist .cat {
+  flex: none;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.clist button { color: var(--muted); }
+
+.ulist {
+  margin-bottom: 20px;
+}
+.ulist li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .86rem;
+}
+.ulist .rol {
+  color: var(--accent);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ---------- Formulario del editor ---------- */
+
+.checks { display: flex; flex-wrap: wrap; gap: 18px; }
+.checks .check { flex: 1 1 240px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.field__hint { color: var(--muted); font-size: .78rem; margin-top: 5px; }
+.field__hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent);
+}
+
+.field__preview {
+  margin-top: 12px;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #000;
+}
+
+.form--flat {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.btn--danger {
+  background: transparent;
+  border: 1px solid var(--accent-2);
+  color: #f0a6b2;
+}
+.btn--danger:hover { background: rgba(208,96,112,.14); border-color: var(--accent-2); }
+
+/* ---------- Barra de publicación ---------- */
+
+.savebar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 14px 24px;
+  background: rgba(11,13,16,.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--accent);
+  color: var(--muted);
+  font-size: .9rem;
+}
+.savebar b { color: var(--text); }

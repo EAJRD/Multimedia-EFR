@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multimedios — Producción audiovisual en Puerto Rico</title>
+<meta name="description" content="Multimedios produce publicidad, cortometrajes, documental y cobertura de eventos. Proyecto co-curricular de la Escuela de Comunicación Ferré Rangel, Universidad del Sagrado Corazón.">
+<meta property="og:title" content="Multimedios — Producción audiovisual">
+<meta property="og:description" content="Publicidad, cortometrajes, documental y cobertura de eventos. Santurce, San Juan, Puerto Rico.">
+<meta property="og:image" content="https://multimedios.example/img/og.jpg">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="container nav__inner">
+    <a href="#top" class="brand">
+      <span class="brand__mark">M</span>
+      <span class="brand__name">Multimedios</span>
+    </a>
+    <button class="nav__toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#ecfr">Qué somos</a>
+      <a href="#contacto" class="btn btn--sm">Cuéntanos tu proyecto</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <p class="eyebrow">Producción audiovisual · Santurce, Puerto Rico</p>
+      <h1 class="hero__title">
+        Ideas que se ven<br>
+        <span class="accent">y se sienten</span>
+      </h1>
+      <p class="hero__text">
+        Producimos publicidad, cortometrajes, documental y cobertura de eventos
+        para marcas y organizaciones. Del concepto al master final, con un solo equipo.
+      </p>
+      <div class="hero__actions">
+        <a href="#proyectos" class="btn">Ver proyectos</a>
+        <a href="#contacto" class="btn btn--ghost">Solicitar presupuesto</a>
+      </div>
+      <ul class="hero__stats">
+        <!-- TODO: sustituir por cifras reales antes de publicar. -->
+        <li><strong>XX+</strong><span>Proyectos entregados</span></li>
+        <li><strong>XX</strong><span>Años produciendo</span></li>
+        <li><strong>4K</strong><span>Estándar de entrega</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ORGANIZACIONES CON LAS QUE TRABAJAMOS -->
+  <section class="logos" aria-label="Organizaciones con las que trabajamos">
+    <div class="container">
+      <p class="logos__label">Con los que trabajamos</p>
+      <ul class="logos__list">
+        <li>Escuela de Comunicación Ferré Rangel</li>
+        <li>Universidad del Sagrado Corazón</li>
+        <li>La Península</li>
+        <li>48 Hour Film Project</li>
+        <li>Puerto Rico Film Festival</li>
+        <li>Teatro Balboa</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section class="section" id="servicios">
+    <div class="container">
+      <header class="section__head">
+        <p class="eyebrow">Qué hacemos</p>
+        <h2 class="section__title">Servicios</h2>
+        <p class="section__lead">Seis áreas, un mismo equipo de guion, cámara, edición y postproducción.</p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card">
+          <span class="card__icon">◉</span>
+          <h3>Publicidad</h3>
+          <p>Spots para TV, digital y redes. Guion, producción, casting y locución con entrega lista para emitir.</p>
+        </article>
+        <article class="card">
+          <span class="card__icon">◑</span>
+          <h3>Cortometrajes</h3>
+          <p>Narrativa corta con mirada propia. Guion, rodaje, sala y entrega en formatos de festival y de marca.</p>
+        </article>
+        <article class="card">
+          <span class="card__icon">▣</span>
+          <h3>Documentales</h3>
+          <p>Historias reales con interviewing, archivo y una postproducción que sostiene el relato.</p>
+        </article>
+        <article class="card">
+          <span class="card__icon">♪</span>
+          <h3>Eventos y música</h3>
+          <p>Conciertos, festivales y eventos. Multi-cámara, mezcla de audio en directo y entrega editada al día siguiente.</p>
+        </article>
+        <article class="card">
+          <span class="card__icon">◎</span>
+          <h3>Redes sociales</h3>
+          <p>Contenido vertical, series de reels y reportes mensuales. Formato constante, no piezas sueltas.</p>
+        </article>
+        <article class="card">
+          <span class="card__icon">◇</span>
+          <h3>Fotografía</h3>
+          <p>Reportaje, producto y retrato. Book de marca con dirección de arte incluida.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section class="section section--alt" id="proyectos">
+    <div class="container">
+      <header class="section__head">
+        <p class="eyebrow">Portafolio</p>
+        <h2 class="section__title">Proyectos</h2>
+        <p class="section__lead">Filtra por categoría para ver cómo trabajamos en cada formato.</p>
+      </header>
+
+      <!-- Las pestañas se regeneran desde data/projects.json / la API cuando
+           hay backend. Este HTML es el respaldo si el sitio se abre sin servidor. -->
+      <div class="filters" id="filters" role="tablist" aria-label="Filtrar proyectos por categoría">
+        <button class="filter is-active" data-filter="todos" type="button" role="tab" aria-selected="true">Todos</button>
+        <button class="filter" data-filter="cortometraje" type="button" role="tab" aria-selected="false">Cortometraje</button>
+        <button class="filter" data-filter="eventos" type="button" role="tab" aria-selected="false">Eventos</button>
+        <button class="filter" data-filter="publicidad" type="button" role="tab" aria-selected="false">Publicidad</button>
+        <button class="filter" data-filter="redes" type="button" role="tab" aria-selected="false">Redes</button>
+      </div>
+
+      <div class="grid grid--3" id="projectGrid">
+
+        <article class="project" data-categoria="cortometraje"
+                 data-title="Encajonado"
+                 data-meta="Cortometraje de estudiantes · 2026 · 12:40"
+                 data-texto="Cortometraje producido dentro del co-curricular. El cartel lo firma Alondra Jiménez Rivera. Estrenado en La Última Tanda.">
+          <button class="project__open" type="button" aria-label="Ver detalle de Encajonado"></button>
+          <div class="project__media">
+            <img src="img/encajonado.svg" alt="Marcador de posición del cartel de Encajonado" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Cortometraje</span>
+          </div>
+          <div class="project__body">
+            <h3>Encajonado</h3>
+            <p>Cortometraje de estudiantes del co-curricular, con su propio cartel y su propio reparto.</p>
+            <ul class="project__meta">
+              <li>ECFR</li><li>2026</li><li>12:40</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="project" data-categoria="cortometraje"
+                 data-title="La Última Tanda"
+                 data-meta="Muestra anual · 12 de mayo de 2026 · Fine Arts de Caribbean Cinemas, Miramar"
+                 data-texto="Muestra anual de cortos del programa de Producción Audiovisual y Cine. Multimedios produjo y documentó la sala. La nota la republicó La Península.">
+          <button class="project__open" type="button" aria-label="Ver detalle de La Última Tanda"></button>
+          <div class="project__media">
+            <img src="img/ultima-tanda.svg" alt="Marcador de posición de La Última Tanda" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Cortometraje</span>
+          </div>
+          <div class="project__body">
+            <h3>La Última Tanda</h3>
+            <p>La muestra anual: cortos del programa, sala llena y la cobertura completa de la noche.</p>
+            <ul class="project__meta">
+              <li>ECFR</li><li>2026</li><li>Sesión</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="project" data-categoria="cortometraje"
+                 data-title="48 Hour Film Project 2026"
+                 data-meta="Convocatoria abierta · casting 2 de octubre de 2026, 9:00 a. m., TV2"
+                 data-texto="Producción de 48 horas. Casting abierto a actores y actrices de 18 años o más, con disponibilidad del 6 al 8 de noviembre de 2026 para rodaje y ensayos en octubre.">
+          <button class="project__open" type="button" aria-label="Ver detalle de 48 Hour Film Project 2026"></button>
+          <div class="project__media">
+            <img src="img/48-hour.svg" alt="Cartel de casting del 48 Hour Film Project 2026" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Cortometraje</span>
+          </div>
+          <div class="project__body">
+            <h3>48 Hour Film Project 2026</h3>
+            <p>Casting y producción bajo presión de tiempo: 48 horas del guion al master.</p>
+            <ul class="project__meta">
+              <li>ECFR</li><li>2026</li><li>48 h</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="project" data-categoria="eventos"
+                 data-title="Puerto Rico Film Festival 2026"
+                 data-meta="Cobertura · Día 1 · Puerto Rico Film Festival"
+                 data-texto="Cobertura del día 1: charla de la profesora Kisha Tikina Burgos sobre dirección de actores y presentación de la selección de La Última Tanda.">
+          <button class="project__open" type="button" aria-label="Ver detalle de Puerto Rico Film Festival 2026"></button>
+          <div class="project__media">
+            <img src="img/film-festival.svg" alt="Marcador de posición de la cobertura del festival" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Eventos</span>
+          </div>
+          <div class="project__body">
+            <h3>Puerto Rico Film Festival 2026</h3>
+            <p>Charla, selección y foto de equipo frente al step-and-repeat del festival.</p>
+            <ul class="project__meta">
+              <li>PRFF</li><li>2026</li><li>1 día</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="project" data-categoria="eventos"
+                 data-title="Teatro Balboa"
+                 data-meta="Cobertura · Marquesina del Teatro Avellanet"
+                 data-texto="Reel filmado en el lugar, con la lona del festival de fondo. Sin texto encima: el teatro se reconoce solo.">
+          <button class="project__open" type="button" aria-label="Ver detalle de Teatro Balboa"></button>
+          <div class="project__media">
+            <img src="img/teatro-balboa.svg" alt="Marcador de posición del reel del Teatro Balboa" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Eventos</span>
+          </div>
+          <div class="project__body">
+            <h3>Teatro Balboa</h3>
+            <p>Cobertura vertical de la marquesina del Teatro Avellanet con la lona del festival.</p>
+            <ul class="project__meta">
+              <li>Teatro Balboa</li><li>2026</li><li>Vertical</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="project" data-categoria="redes"
+                 data-title="Reunión de voluntarios 2026"
+                 data-meta="Contenido · 2026 · Serie de piezas"
+                 data-texto="Collage del encuentro de voluntarios, con los proyectos del año en pantalla. La pieza que abre la temporada del equipo.">
+          <button class="project__open" type="button" aria-label="Ver detalle de Reunión de voluntarios 2026"></button>
+          <div class="project__media">
+            <img src="img/reunion-2026.svg" alt="Collage de la reunión de voluntarios" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Redes</span>
+          </div>
+          <div class="project__body">
+            <h3>Reunión de voluntarios 2026</h3>
+            <p>El equipo junto, los proyectos del año en pantalla y la convocatoria abierta.</p>
+            <ul class="project__meta">
+              <li>ECFR</li><li>2026</li><li>Serie</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- TODO: sustituir por un comercial real. -->
+        <article class="project is-pending" data-categoria="publicidad"
+                 data-title="Campaña [por definir]"
+                 data-meta="Publicidad · pendiente de material real"
+                 data-texto="Espacio reservado. Cuando exista un comercial real, entra aquí con su cliente, su duración y su resultado.">
+          <button class="project__open" type="button" aria-label="Ver detalle del proyecto pendiente"></button>
+          <div class="project__media">
+            <img src="img/publicidad-pend.svg" alt="Marcador de posición para un proyecto de publicidad" loading="lazy" width="1200" height="800">
+            <span class="project__play" aria-hidden="true">▶</span>
+            <span class="badge">Publicidad</span>
+          </div>
+          <div class="project__body">
+            <h3>Campaña [por definir]</h3>
+            <p>Espacio reservado para el primer trabajo comercial de la casa.</p>
+            <ul class="project__meta">
+              <li>Por definir</li><li>—</li><li>—</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+
+      <p class="empty" id="emptyState" hidden>No hay proyectos en esta categoría todavía.</p>
+    </div>
+  </section>
+
+  <!-- PROCESO -->
+  <section class="section" id="proceso">
+    <div class="container">
+      <header class="section__head">
+        <p class="eyebrow">Cómo trabajamos</p>
+        <h2 class="section__title">Proceso</h2>
+      </header>
+      <ol class="steps">
+        <li><span class="steps__num">01</span><h3>Conversación</h3><p>Entendemos el objetivo, el público y qué tiene que pasar después de ver el piece.</p></li>
+        <li><span class="steps__num">02</span><h3>Propuesta</h3><p>Concepto, presupuesto desglosado y calendario. Sin costes sorpresa.</p></li>
+        <li><span class="steps__num">03</span><h3>Producción</h3><p>Equipo técnico y plan de rodaje. Te mandamos un parte diario.</p></li>
+        <li><span class="steps__num">04</span><h3>Post y entrega</h3><p>Edición, color, sonido y todos los formatos que necesites. En tu deadline.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ANEXO ECFR -->
+  <section class="section section--alt" id="ecfr">
+    <div class="container">
+      <header class="section__head">
+        <p class="eyebrow">Transparencia</p>
+        <h2 class="section__title">Multimedios ECFR</h2>
+        <p class="section__lead">
+          Multimedios es el proyecto co-curricular de la Escuela de Comunicación
+          Ferré Rangel de la Universidad del Sagrado Corazón. Lo hacemos estudiantes
+          de Producción Audiovisual y Cine, bajo la guía del programa.
+        </p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card">
+          <h3>Qué es</h3>
+          <p>Un proyecto co-curricular. No es una agencia comercial ni la oficina de prensa de la universidad.</p>
+        </article>
+        <article class="card">
+          <h3>Dónde trabajamos</h3>
+          <p>El campus de la ECFR, en Santurce, San Juan, Puerto Rico, es la base. Las piezas salen también a sala y a festival.</p>
+        </article>
+        <article class="card">
+          <h3>Encargos</h3>
+          <p>Los trabajos por encargo se dicen como tales. Si hay algo que no depende de nosotros, preferimos decirlo antes de empezar.</p>
+        </article>
+      </div>
+
+      <p class="note">
+        Consulta el <code>MANUAL-DE-MARCA.md</code> del repositorio para las reglas de
+        nombre, color y fotografía que rigen este sitio.
+      </p>
+    </div>
+  </section>
+
+  <!-- FORMULARIO -->
+  <section class="section" id="contacto">
+    <div class="container contact">
+      <div class="contact__intro">
+        <p class="eyebrow">Empezar</p>
+        <h2 class="section__title">Organizaciones interesadas</h2>
+        <p class="section__lead">
+          Si representas a una organización y quieres un proyecto audiovisual, rellena
+          el formulario. Leemos todo y respondemos con una primera valoración.
+          <!-- TODO: sustituir por el correo que confirme el equipo. -->
+          También puedes escribir a <a href="mailto:multimedios@example.com">multimedios@example.com</a>.
+        </p>
+        <ul class="contact__data">
+          <li><span>Email</span> multimedios@example.com</li>
+          <li><span>Teléfono</span> (787) 000-0000</li>
+          <li><span>Base</span> Santurce, San Juan, Puerto Rico</li>
+        </ul>
+      </div>
+
+      <!-- DEMO: valida en el navegador y avisa. No envía a ningún servidor.
+           Para producción, ver PLAN.md Fase 4 (Formspree). -->
+      <form class="form" id="contactForm" novalidate>
+        <div class="field">
+          <label for="org">Organización <span aria-hidden="true">*</span></label>
+          <input type="text" id="org" name="org" placeholder="Nombre de tu empresa u organización" required>
+          <small class="field__error" data-error-for="org"></small>
+        </div>
+
+        <div class="field">
+          <label for="tipo_org">Tipo de organización <span aria-hidden="true">*</span></label>
+          <select id="tipo_org" name="tipo_org" required>
+            <option value="">Selecciona una opción</option>
+            <option>Empresa o marca</option>
+            <option>Institución educativa</option>
+            <option>Organización sin fines de lucro</option>
+            <option>Gobierno o sector público</option>
+            <option>Medio o prensa</option>
+            <option>Festival o asociación cultural</option>
+            <option>Otro</option>
+          </select>
+          <small class="field__error" data-error-for="tipo_org"></small>
+        </div>
+
+        <div class="field">
+          <label for="name">Persona de contacto <span aria-hidden="true">*</span></label>
+          <input type="text" id="name" name="name" placeholder="Nombre y apellidos" required>
+          <small class="field__error" data-error-for="name"></small>
+        </div>
+
+        <div class="field">
+          <label for="email">Email <span aria-hidden="true">*</span></label>
+          <input type="email" id="email" name="email" placeholder="tu@organizacion.com" required>
+          <small class="field__error" data-error-for="email"></small>
+        </div>
+
+        <div class="field">
+          <label for="tipo">Tipo de proyecto <span aria-hidden="true">*</span></label>
+          <select id="tipo" name="tipo" required>
+            <option value="">Selecciona una opción</option>
+            <option>Publicidad / Spot</option>
+            <option>Cortometraje</option>
+            <option>Documental</option>
+            <option>Musica / Evento</option>
+            <option>Redes sociales</option>
+            <option>Fotografía</option>
+            <option>Otro</option>
+          </select>
+          <small class="field__error" data-error-for="tipo"></small>
+        </div>
+
+        <div class="field">
+          <label for="presupuesto">Presupuesto estimado</label>
+          <select id="presupuesto" name="presupuesto">
+            <option value="">Sin definir todavía</option>
+            <option>Menos de $3,000</option>
+            <option>$3,000 – $10,000</option>
+            <option>$10,000 – $25,000</option>
+            <option>Más de $25,000</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="fecha">Fecha de entrega deseada</label>
+          <input type="date" id="fecha" name="fecha">
+        </div>
+
+        <div class="field field--full">
+          <label for="mensaje">Cuéntanos brevemente <span aria-hidden="true">*</span></label>
+          <textarea id="mensaje" name="mensaje" rows="5" placeholder="Objetivo, público, dónde se va a publicar…" required></textarea>
+          <small class="field__error" data-error-for="mensaje"></small>
+        </div>
+
+        <div class="field field--full">
+          <label class="check">
+            <input type="checkbox" id="rgpd" name="rgpd" required>
+            <span>He leído y acepto la política de privacidad. <span aria-hidden="true">*</span></span>
+          </label>
+          <small class="field__error" data-error-for="rgpd"></small>
+        </div>
+
+        <div class="field field--full">
+          <button type="submit" class="btn btn--block">Enviar solicitud</button>
+        </div>
+
+        <p class="form__note">Demo: el formulario valida pero no envía datos a ningún servidor.</p>
+      </form>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+      <strong>Solicitud registrada.</strong>
+      <span>Gracias. En producción esto llegaría a nuestro buzón. Escríbenos al buzón si prefieres hablar antes.</span>
+      <button type="button" class="toast__close" id="toastClose" aria-label="Cerrar aviso">×</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal__close" type="button" data-modal-close aria-label="Cerrar detalle">×</button>
+    <span class="badge" id="modalBadge">Proyecto</span>
+    <h2 class="modal__title" id="modalTitle">Título</h2>
+    <p class="modal__meta" id="modalMeta"></p>
+    <p class="modal__text" id="modalText"></p>
+    <a href="#contacto" class="btn btn--sm" data-modal-close>Quiero un proyecto así</a>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div>
+      <a href="#top" class="brand">
+        <span class="brand__mark">M</span>
+        <span class="brand__name">Multimedios</span>
+      </a>
+      <p class="footer__tag">Proyecto co-curricular de la ECFR, Universidad del Sagrado Corazón.</p>
+    </div>
+    <nav class="footer__links" aria-label="Enlaces del pie">
+      <a href="#servicios">Servicios</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#ecfr">Qué somos</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <p class="footer__legal">© <span id="year">2026</span> Multimedios ECFR.</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

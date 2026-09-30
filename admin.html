@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Multimedios</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin">
+
+<!-- ================= LOGIN ================= -->
+<section class="login" id="loginView" hidden>
+  <form class="login__card" id="loginForm" novalidate>
+    <span class="login__mark">M</span>
+    <h1 class="login__title">Multimedios</h1>
+    <p class="login__sub">Panel de administración</p>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="username" required>
+    </div>
+
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+      <small class="field__hint">Mínimo 12 caracteres.</small>
+    </div>
+
+    <p class="login__error" id="loginError" role="alert" hidden></p>
+
+    <button type="submit" class="btn btn--block" id="loginSubmit">Entrar</button>
+
+    <div class="bootstrap" id="bootstrap" hidden>
+      <p class="bootstrap__text">
+        Todavía no hay ningún usuario. Crea el primero: será admin.
+      </p>
+      <div id="bootstrapForm">
+        <div class="field">
+          <label for="b_nombre">Nombre</label>
+          <input type="text" id="b_nombre" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="b_email">Email</label>
+          <input type="email" id="b_email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="b_password">Contraseña</label>
+          <input type="password" id="b_password" autocomplete="new-password" required>
+          <small class="field__hint">Mínimo 12 caracteres.</small>
+        </div>
+        <button type="button" class="btn btn--block" id="bootstrapSubmit">Crear el primer admin</button>
+        <p class="form__note" id="bootstrapNote" role="status"></p>
+      </div>
+    </div>
+
+    <p class="login__foot"><a href="/index.html">← Volver al sitio</a></p>
+  </form>
+</section>
+
+<!-- ================= PANEL ================= -->
+<div class="panel" id="panelView" hidden>
+
+  <header class="panel__bar">
+    <a href="/index.html" class="brand">
+      <span class="brand__mark">M</span>
+      <span class="brand__name">Multimedios</span>
+    </a>
+    <div class="panel__who">
+      <span id="whoami"></span>
+      <button type="button" class="btn btn--ghost btn--sm" id="logoutBtn">Salir</button>
+    </div>
+  </header>
+
+  <div class="panel__body">
+
+    <!-- estado del almacenamiento -->
+    <div class="alert" id="storeAlert" hidden></div>
+
+    <div class="panel__grid">
+
+      <!-- ============ LISTA ============ -->
+      <section class="panel__col">
+        <div class="panel__head">
+          <h2>Proyectos</h2>
+          <button type="button" class="btn btn--sm" id="newBtn">+ Nuevo</button>
+        </div>
+
+        <ul class="plist" id="plist"></ul>
+
+        <h2 class="panel__sub">Categorías</h2>
+        <ul class="clist" id="clist"></ul>
+        <button type="button" class="btn btn--ghost btn--sm btn--block" id="addCatBtn">+ Añadir categoría</button>
+      </section>
+
+      <!-- ============ FORMULARIO ============ -->
+      <section class="panel__col" id="editor" hidden>
+        <div class="panel__head">
+          <h2 id="editorTitle">Nuevo proyecto</h2>
+          <button type="button" class="btn btn--ghost btn--sm" id="cancelBtn">Cerrar</button>
+        </div>
+
+        <form class="form" id="projectForm" novalidate>
+          <input type="hidden" id="f_id">
+
+          <div class="field">
+            <label for="f_titulo">Título <span aria-hidden="true">*</span></label>
+            <input type="text" id="f_titulo" required>
+            <small class="field__error" data-error-for="f_titulo"></small>
+          </div>
+
+          <div class="field">
+            <label for="f_categoria">Categoría <span aria-hidden="true">*</span></label>
+            <select id="f_categoria" required></select>
+            <small class="field__error" data-error-for="f_categoria"></small>
+          </div>
+
+          <div class="field">
+            <label for="f_cliente">Cliente</label>
+            <input type="text" id="f_cliente">
+          </div>
+
+          <div class="field">
+            <label for="f_anio">Año</label>
+            <input type="text" id="f_anio" placeholder="2026">
+          </div>
+
+          <div class="field">
+            <label for="f_duracion">Duración</label>
+            <input type="text" id="f_duracion" placeholder="12:40">
+          </div>
+
+          <div class="field">
+            <label for="f_imagen">Imagen <span aria-hidden="true">*</span></label>
+            <input type="text" id="f_imagen" placeholder="img/encajonado.svg" required>
+            <small class="field__hint">Ruta dentro de <code>img/</code>. SVG, PNG, JPG, WebP o AVIF.</small>
+            <small class="field__error" data-error-for="f_imagen"></small>
+            <img class="field__preview" id="f_preview" src="img/encajonado.svg" alt="Vista previa de la imagen" hidden>
+          </div>
+
+          <div class="field field--full">
+            <label for="f_alt">Texto alternativo <span aria-hidden="true">*</span></label>
+            <input type="text" id="f_alt" required>
+            <small class="field__error" data-error-for="f_alt"></small>
+          </div>
+
+          <div class="field field--full">
+            <label for="f_resumen">Resumen <span aria-hidden="true">*</span></label>
+            <textarea id="f_resumen" rows="2" required></textarea>
+            <small class="field__error" data-error-for="f_resumen"></small>
+          </div>
+
+          <div class="field field--full">
+            <label for="f_detalle">Detalle (se abre en el modal)</label>
+            <textarea id="f_detalle" rows="5"></textarea>
+          </div>
+
+          <div class="field field--full">
+            <label for="f_meta">Línea de metadatos</label>
+            <input type="text" id="f_meta" placeholder="Muestra anual · 12 de mayo de 2026">
+          </div>
+
+          <div class="field field--full checks">
+            <label class="check">
+              <input type="checkbox" id="f_destacado">
+              <span>Destacado</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="f_pendiente">
+              <span>Pendiente (marca la tarjeta con línea discontinua)</span>
+            </label>
+          </div>
+
+          <div class="field field--full actions">
+            <button type="submit" class="btn">Guardar proyecto</button>
+            <button type="button" class="btn btn--danger" id="deleteBtn" hidden>Borrar</button>
+          </div>
+        </form>
+      </section>
+
+    </div>
+
+    <!-- ============ USUARIOS (solo admin) ============ -->
+    <section class="panel__col panel__col--wide" id="userBox" hidden>
+      <div class="panel__head">
+        <h2>Usuarios</h2>
+      </div>
+
+      <ul class="ulist" id="ulist"></ul>
+
+      <form class="form form--flat" id="userForm" novalidate>
+        <div class="field">
+          <label for="u_nombre">Nombre</label>
+          <input type="text" id="u_nombre" required>
+        </div>
+        <div class="field">
+          <label for="u_email">Email</label>
+          <input type="email" id="u_email" required>
+        </div>
+        <div class="field">
+          <label for="u_password">Contraseña</label>
+          <input type="password" id="u_password" autocomplete="new-password" required>
+          <small class="field__hint">Mínimo 12 caracteres.</small>
+        </div>
+        <div class="field">
+          <label for="u_rol">Rol</label>
+          <select id="u_rol">
+            <option value="editor">Editor — puede cambiar proyectos</option>
+            <option value="admin">Admin — también crea usuarios</option>
+          </select>
+        </div>
+        <div class="field field--full">
+          <button type="submit" class="btn btn--sm">Crear usuario</button>
+        </div>
+        <p class="form__note" id="userNote" role="status"></p>
+      </form>
+    </section>
+
+    <div class="savebar" id="savebar" hidden>
+      <span id="savebarMsg"></span>
+      <button type="button" class="btn" id="saveAllBtn">Publicar cambios</button>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+    <strong id="toastTitle"></strong>
+    <span id="toastText"></span>
+    <button type="button" class="toast__close" id="toastClose" aria-label="Cerrar aviso">×</button>
+  </div>
+</div>
+
+<script src="js/admin.js" type="module"></script>
+</body>
+</html>
