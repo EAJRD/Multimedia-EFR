@@ -16,7 +16,8 @@
     "test": "node tools/smoke.mjs",
     "test:api": "node tools/test-api.mjs",
     "test:cold": "node tools/test-bootstrap.mjs",
-    "test:all": "node tools/smoke.mjs && node tools/test-api.mjs && node tools/test-bootstrap.mjs",
+    "test:caja": "node tools/test-secret-box.mjs",
+    "test:all": "node tools/smoke.mjs && node tools/test-api.mjs && node tools/test-bootstrap.mjs && node tools/test-secret-box.mjs",
     "shots": "node tools/shots.mjs"
   },
   "dependencies": {

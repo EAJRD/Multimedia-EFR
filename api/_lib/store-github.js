@@ -2,7 +2,13 @@
    Backend GitHub: data/projects.json y data/users.json
    viven en el repo. Cada cambio del admin es un commit.
    Funciona en Vercel, donde no hay disco.
+
+   El contenido va en claro: es público a propósito.
+   El registro de usuarios va cifrado, porque el repo es público y los
+   hashes no deberían estar a la vista. Ver secret-box.js.
    ============================================ */
+
+import { abrir, sellar } from './secret-box.js';
 
 const API = 'https://api.github.com';
 
@@ -90,10 +96,13 @@ export const githubStore = {
   },
 
   async getUsers() {
-    return readJson('data/users.json', { usuarios: [] });
+    const bruto = await readJson('data/users.json', { usuarios: [] });
+    return abrir(bruto);
   },
 
   async saveUsers(data, mensaje = 'admin: actualizar usuarios') {
-    return writeJson('data/users.json', data, mensaje);
+    // sellar() lanza si no hay SESSION_SECRET. Mejor no escribir que
+    // dejar los hashes a la vista de cualquiera que abra el repo.
+    return writeJson('data/users.json', sellar(data), mensaje);
   },
 };

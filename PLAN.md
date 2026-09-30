@@ -25,11 +25,13 @@ Se hospeda en Netlify, Vercel o GitHub Pages arrastrando la carpeta.
 | `Dockerfile`, `docker-compose.yml` | **Sin probar**: la máquina no tiene Docker |
 | `vercel.json` | Despliegue en Vercel |
 | `MANUAL-DE-MARCA.md` | Reglas de marca (manda sobre el contenido) |
-| `tools/` | Generador de placeholders, 26 + 48 pruebas, capturas |
+| `tools/` | Generador de placeholders, 96 pruebas, capturas |
 
-Verificación: `npm test` → **26/26**, `npm run test:api` → **48/48**.
+Verificación: `npm run test:all` → **96/96** (26 sitio público, 50 API y
+panel, 10 arranque en frío, 10 cifrado del registro).
 
-Para verlo: `npm install && npm run create-user && npm start` → localhost:3000.
+Para verlo: `npm install && npm start` → localhost:3000. El primer admin se
+crea desde `admin.html`, en el propio navegador: no hace falta ningún comando.
 
 ---
 
@@ -125,11 +127,15 @@ Cada uno dice STILL PENDIENTE. Hay que sustituirlos:
 
 - [x] Login con contraseña en cookie firmada HMAC-SHA256, `HttpOnly` + `SameSite=Lax`.
 - [x] Multiusuario con bcrypt. Dos roles: `admin` crea usuarios, `editor` edita.
+- [x] Arranque en frío: con el registro vacío, el panel deja crear el primer
+      admin sin sesión. Se cierra solo en cuanto existe un usuario.
 - [x] Editor de proyectos: crear, editar, borrar, previsualizar la imagen.
 - [x] Los cambios se acumulan y se publican con un botón, no se guardan solos.
 - [x] Sin API el panel avisa de que está en solo lectura, en vez de fallar en silencio.
 - [x] Contenido inyectado con `textContent`. Hay prueba de XSS.
 - [x] Contenido escrito a GitHub o a SQLite según el adaptador activo.
+- [x] El registro de usuarios sube al repo **cifrado** (AES-256-GCM, clave derivada
+      de `SESSION_SECRET`). El repo es público y los hashes no se enseñan.
 
 Pendiente:
 

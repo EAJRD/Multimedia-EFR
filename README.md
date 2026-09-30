@@ -25,36 +25,82 @@ sesiones no se puedan falsificar. Genera uno con `openssl rand -hex 32`.
 ## Pruebas
 
 ```bash
-npm test      # 26 pruebas del sitio público
-npm run test:api   # 48 pruebas de la API, el login y el panel
+npm test            # 26  sitio público
+npm run test:api    # 50  API, login y panel, con navegador de verdad
+npm run test:cold   # 10  arranque en frío: crear el primer admin
+npm run test:caja   # 10  el registro de usuarios no sale en claro al repo
+
+npm run test:all   # las cuatro, 96 en total
 ```
 
-Las pruebas de la API levantan su propio servidor y su propia base de datos
-temporal. No tocan `data/`.
+Las tres últimas levantan su propio servidor y su propia base de datos
+temporal, y restauran `data/users.json` al terminar. `test:all` no puede
+correr dos veces a la vez: compiten por el mismo archivo de usuarios.
 
 ---
 
 ## Desplegar en Vercel (para enseñarlo ya)
 
-La forma más rápida, sin terminal:
+### Antes: el token de GitHub
 
-1. Entra en [vercel.com/new](https://vercel.com/new) e importa
-   `EAJRD/Multimedia-EFR`. Vercel detecta `vercel.json` solo.
-2. En **Settings → Environment Variables** añade:
+El admin guarda cada cambio como un commit en el repo, así que Vercel necesita
+un token que pueda escribir. Sin esto el panel abre pero no guarda nada.
+
+En GitHub → **Settings → Developer settings → Personal access tokens →
+Fine-grained tokens → Generate new token**:
+
+- **Resource owner**: `EAJRD`
+- **Repository access**: *Only select repositories* → `Multimedia-EFR`
+- **Permissions → Repository permissions → Contents**: *Read and write*
+- Caducidad: la que quieras. Ponle recordatorio en el calendario, porque al
+  caducar el admin deja de guardar y avisa con un error en vez de callarse.
+
+Copia el token. Se muestra una sola vez.
+
+### Luego: el despliegue
+
+1. Entra en [vercel.com/new](https://vercel.com/new), botón **Add New →
+   Project**, e importa `EAJRD/Multimedia-EFR`. No hay que tocar Framework
+   Preset ni Build Command: `vercel.json` ya lo define.
+2. En **Settings → Environment Variables** añade las cuatro. Ojo al
+   desplegador de abajo:
 
    | Nombre | Valor |
    |---|---|
-   | `SESSION_SECRET` | el que generaste con `openssl rand -hex 32` |
+   | `SESSION_SECRET` | una cadena de 64 caracteres, ver abajo |
    | `GITHUB_REPO` | `EAJRD/Multimedia-EFR` |
-   | `GITHUB_TOKEN` | un token con permiso `contents:write` sobre ese repo |
+   | `GITHUB_TOKEN` | el token de la sección anterior |
    | `GITHUB_BRANCH` | `main` |
 
-3. Despliega.
+   En el desplegable **Environment** marca las tres: **Production**,
+   **Preview** y **Development**. Con el valor por defecto solo quedan en
+   Production, y cualquier redeploy de prueba se cae por falta de variables.
+3. **Deploy**.
 
-El `GITHUB_TOKEN` se puede crear en GitHub → **Settings → Developer settings →
-Personal access tokens → Fine-grained**. Marca solo ese repositorio y solo
-`Contents: Read and write`. **El token nunca llega al navegador**: lo usa solo
-la función de servidor.
+Para generar el `SESSION_SECRET`:
+
+```bash
+openssl rand -hex 32
+```
+
+O bien, para que no dependa de que tengas `openssl`:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+### Comprobar que funciona
+
+1. Abre la URL de Vercel. La portada debe mostrar los 7 proyectos.
+2. Abre `TU-URL/admin.html`. Como el registro de usuarios está vacío, debe
+   aparecer **«Todavía no hay ningún usuario»** con un formulario. Crea el
+   primer admin ahí: en Vercel no hay forma de crear usuarios por comando.
+3. Entra, edita un proyecto, guarda. Después `git pull` en local: el cambio
+   tiene que haber llegado como commit a `main`. Si sí, GitHub está leyendo y
+   escribiendo bien y el despliegue está completo.
+
+Ese primer admin es la única forma de crear el resto. **Anota la contraseña**:
+no hay forma de recuperarla, solo de cambiarla desde el panel.
 
 ### Por qué GitHub guarda el contenido
 
@@ -63,8 +109,15 @@ se borra. Si el admin guardara en un archivo, los cambios se perderían. Escribi
 `data/projects.json` en el repo, cada cambio es un commit: se ve en el historial
 y se puede deshacer con `git revert`.
 
-La alternativa es un repositorio **privado**, para que `data/users.json` con los
-hashes bcrypt no quede visible.
+El registro de usuarios no va en claro, aunque el repo sea público: antes de
+subirlo se cifra con AES-256-GCM usando una clave derivada de
+`SESSION_SECRET` (`api/_lib/secret-box.js`). El archivo que sube al repo es
+ilegible sin esa clave, que solo vive en las variables de Vercel. Aun así
+**cambia el `SESSION_SECRET` si crees que se ha filtrado**: cambia es
+exactamente lo que rompe la lectura del registro.
+
+`data/users.json` está en `.gitignore`, así que un `git pull` normal no lo
+trae. Lo que escribe la API sí se commitea, y por eso va cifrado.
 
 ---
 
