@@ -21,7 +21,10 @@ const state = {
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
-    headers: options.body ? { 'Content-Type': 'application/json' } : {},
+    headers: {
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {}),
+    },
     ...options,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
@@ -273,7 +276,11 @@ async function subirImagen() {
     // El nombre del archivo no se envía: el servidor rehace la ruta
     // desde cero. Aquí solo se manda como pista para el nombre.
     const nombre = $('f_titulo').value.trim() || archivo.name.replace(/\.[^.]+$/, '');
-    const r = await api('/api/upload', { method: 'POST', body: { nombre, base64 } });
+    const r = await api('/api/projects', {
+      method: 'POST',
+      headers: { 'X-Accion': 'subir' },
+      body: { nombre, base64 },
+    });
     $('f_imagen').value = r.ruta;
     estado.textContent = 'Subida. Falta guardar el proyecto para publicarlo.';
     previsualizar();

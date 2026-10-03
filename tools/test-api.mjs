@@ -7,7 +7,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, rmSync, existsSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, dirname } from 'node:path';
@@ -115,7 +115,7 @@ function makeClient() {
   return async (path, options = {}) => {
     const res = await fetch(BASE + path, {
       method: options.method || 'GET',
-      headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(cookie ? { cookie } : {}) },
+      headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}), ...(cookie ? { cookie } : {}) },
       body: options.body ? JSON.stringify(options.body) : undefined,
       redirect: 'manual',
     });
@@ -443,6 +443,84 @@ await check('id duplicado → 400', async () => {
   const p = { titulo: 'A', categoria: d.categorias[0].id, resumen: 'x' };
   const r = await conSesion('/api/projects', { method: 'POST', body: { categorias: d.categorias, proyectos: [p, p] } });
   assert.equal(r.status, 400);
+});
+
+/* ---------- Subir imagen: X-Accion: subir sobre /api/projects ----------
+   No es api/upload.js porque en este proyecto de Vercel las funciones
+   nuevas en api/ se registraban pero no se invocaban. Ver _lib/upload.js. */
+
+const PNG_BUENO = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64'
+);
+
+const subir = (cuerpo) => {
+  const res = fetch(BASE + '/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Accion': 'subir', cookie: sesion.cookie },
+    body: JSON.stringify(cuerpo),
+  });
+  return res.then(async (r) => ({ status: r.status, body: await r.json().catch(() => null) }));
+};
+
+await check('subir imagen sin sesión → 401', async () => {
+  // Cliente nuevo a propósito: 'anon' arrastra cookie de otros tests.
+  const limpio = makeClient();
+  const r = await limpio('/api/projects', {
+    method: 'POST',
+    headers: { 'X-Accion': 'subir' },
+    body: { nombre: 'x', base64: PNG_BUENO.toString('base64') },
+  });
+  assert.equal(r.status, 401);
+});
+
+await check('subir un SVG con <script> → 415', async () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>';
+  const r = await subir({ nombre: 'mala', base64: Buffer.from(svg).toString('base64') });
+  assert.equal(r.status, 415, `esperaba 415 y dio ${r.status}: ${JSON.stringify(r.body)}`);
+  assert.match(r.body.error, /script/i);
+});
+
+await check('subir un SVG con onload= → 415', async () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" onload="robar()"><rect/></svg>';
+  const r = await subir({ nombre: 'mala2', base64: Buffer.from(svg).toString('base64') });
+  assert.equal(r.status, 415);
+});
+
+await check('subir algo que no es una imagen → 415', async () => {
+  const r = await subir({ nombre: 'guion', base64: Buffer.from('#!/bin/sh\nrm -rf /\n').toString('base64') });
+  assert.equal(r.status, 415);
+});
+
+await check('subir sin base64 → 400', async () => {
+  const r = await subir({ nombre: 'vacia' });
+  assert.equal(r.status, 400);
+});
+
+await check('subir de verdad devuelve una ruta limpia dentro de img/', async () => {
+  const r = await subir({ nombre: 'Foto Del Cliente ÁÉÍ', base64: PNG_BUENO.toString('base64') });
+  assert.equal(r.status, 201, `esperaba 201 y dio ${r.status}: ${JSON.stringify(r.body)}`);
+  assert.match(r.body.ruta, /^img\/foto-del-cliente-aei-[a-z0-9]+\.png$/);
+  assert.equal(r.body.url, '/' + r.body.ruta);
+  // Con SQLite el archivo va al volumen, junto a la base de datos.
+  const destino = join(dirname(process.env.DATABASE_PATH), r.body.ruta);
+  assert.ok(existsSync(destino), `el archivo no quedó escrito en ${destino}`);
+  // El nombre que manda el cliente no puede colarse en la ruta.
+  assert.ok(!r.body.ruta.includes('..'), 'la ruta admite traversal');
+});
+
+await check('la imagen subida se sirve en /img/', async () => {
+  const r = await subir({ nombre: 'Servida', base64: PNG_BUENO.toString('base64') });
+  const res = await fetch(BASE + r.body.url);
+  assert.equal(res.status, 200, `la imagen no se sirvió: ${res.status}`);
+  const bytes = Buffer.from(await res.arrayBuffer());
+  assert.ok(bytes.equals(PNG_BUENO), 'los bytes servidos no son los que se subieron');
+});
+
+await check('la imagen subida no se puede pedir como función', async () => {
+  const r = await subir({ nombre: 'x', base64: PNG_BUENO.toString('base64') });
+  const res = await fetch(BASE + '/' + r.body.ruta);
+  assert.ok([200, 404].includes(res.status), `respondió ${res.status}`);
 });
 
 await check('DELETE borra el proyecto', async () => {

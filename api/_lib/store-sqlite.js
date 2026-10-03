@@ -109,4 +109,20 @@ export const sqliteStore = {
     })();
     return { path: path_() };
   },
+
+  /* En Docker hay disco de verdad, así que una imagen no necesita
+     commit: se escribe en el volumen, junto a la base de datos, y el
+     servidor la sirve como estático. */
+  async putAsset(ruta, base64) {
+    // La ruta la fabricó upload.js; aquí solo se evita que un ".."
+    // se salga del directorio de assets.
+    const limpio = path.normalize(ruta).replace(/^([/\\]|\.\.[/\\])+/, '');
+    if (!limpio.startsWith('img/')) {
+      throw Object.assign(new Error('Los assets solo pueden ir en img/'), { code: 'BAD_PATH' });
+    }
+    const destino = path.join(path.dirname(path_()), limpio);
+    fs.mkdirSync(path.dirname(destino), { recursive: true });
+    fs.writeFileSync(destino, Buffer.from(base64, 'base64'));
+    return { path: limpio };
+  },
 };

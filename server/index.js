@@ -55,6 +55,22 @@ app.get('/admin.html', (req, res, next) => {
 });
 
 /* --- Estáticos --- */
+
+/* Las imágenes subidas con el backend SQLite viven en el volumen, junto a
+   la base de datos, no en el repo. Si no se sirven desde ahí, el admin
+   sube un cartel y luego no aparece en ninguna parte. */
+if (process.env.DATABASE_PATH || process.env.SQLITE_PATH) {
+  const dbPath = process.env.DATABASE_PATH || process.env.SQLITE_PATH;
+  app.use(
+    '/img',
+    express.static(path.join(path.dirname(dbPath), 'img'), {
+      setHeaders(res) {
+        res.setHeader('Cache-Control', 'public, max-age=604800');
+      },
+    })
+  );
+}
+
 app.use(
   express.static(SITE, {
     index: 'index.html',

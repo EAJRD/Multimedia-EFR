@@ -1,7 +1,8 @@
 /* ============================================
    /api/projects
      GET        → contenido público (sin sesión hace falta)
-     POST       → { proyectos, categorias }  reemplaza todo
+     POST       → { accion: 'subir', base64 }  sube una imagen
+                  { proyectos, categorias }     reemplaza todo
      PUT        → { proyecto }               upsert de uno
      DELETE     → { id }                     borra uno
    ============================================ */
@@ -10,6 +11,7 @@ import { store, IS_READ_ONLY, diagnosticoAlmacenamiento } from './_lib/store.js'
 import { readSession } from './_lib/session.js';
 import { validateProject, validateCategorias } from './_lib/validate.js';
 import { send, fail, readBody, guard } from './_lib/http.js';
+import { leerCuerpoGrande, guardarImagen } from './_lib/upload.js';
 
 function sesionValida(req) {
   return Boolean(readSession(req.headers.cookie, process.env.SESSION_SECRET));
@@ -48,6 +50,14 @@ export const handler = guard(async (req, res) => {
   }
 
   if (!sesionValida(req)) return fail(res, 401, 'Necesitas iniciar sesión.');
+
+  /* Subir una imagen llega con su propia acción y su propio tope de
+     cuerpo, así que se resuelve antes de leer nada más. */
+  if (method === 'POST' && String(req.headers['x-accion'] || '') === 'subir') {
+    if (IS_READ_ONLY) return fail(res, 503, diagnosticoAlmacenamiento());
+    const r = await guardarImagen(await leerCuerpoGrande(req));
+    return send(res, r.status, r.cuerpo);
+  }
 
   const data = await store.getProjects();
   const cats = (data.categorias || []).map((c) => c.id);

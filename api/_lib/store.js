@@ -45,6 +45,12 @@ const fileStore = {
       code: 'READ_ONLY',
     });
   },
+
+  async putAsset() {
+    throw Object.assign(new Error(diagnosticoAlmacenamiento()), {
+      code: 'READ_ONLY',
+    });
+  },
 };
 
 function readLocal(rel, fallback) {
