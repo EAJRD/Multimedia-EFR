@@ -28,7 +28,7 @@ process.env.GITHUB_REPO = 'EAJRD/Multimedia-EFR';
 process.env.GITHUB_BRANCH = 'main';
 
 const { sellar, abrir, estaSellado } = await import('../api/_lib/secret-box.js');
-const { githubStore } = await import('../api/_lib/store-github.js');
+const { githubStore, resetCache } = await import('../api/_lib/store-github.js');
 
 const HASH = '$2b$12$' + 'x'.repeat(53);
 const REGISTRO = { usuarios: [{ id: 'u1', nombre: 'Ada', email: 'ada@x.co', hash: HASH, rol: 'admin' }] };
@@ -80,6 +80,10 @@ await check('con otra SESSION_SECRET no se puede abrir', () => {
 
 let subido = null;
 const realFetch = globalThis.fetch;
+
+/* Las lecturas ya no van por api.github.com (lento y con 500s), sino por
+   la CDN raw.githubusercontent. Este mock cubre las dos rutas: escribe por
+   la API y, si algo lee, lo lee de la CDN como haría en producción. */
 globalThis.fetch = async (url, opts = {}) => {
   const u = String(url);
   if (u.includes('/contents/data/users.json') && (opts.method || 'GET') === 'PUT') {
@@ -87,6 +91,13 @@ globalThis.fetch = async (url, opts = {}) => {
     return new Response('{}', { status: 200 });
   }
   if (u.includes('/contents/data/users.json')) {
+    if (!subido) return new Response('Not Found', { status: 404 });
+    return new Response(JSON.stringify(subido), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }
+  if (u.includes('raw.githubusercontent.com') && u.includes('users.json')) {
     if (!subido) return new Response('Not Found', { status: 404 });
     return new Response(JSON.stringify(subido), {
       status: 200,
@@ -119,6 +130,80 @@ await check('getUsers recupera el registro después del viaje', async () => {
     return realFetch(url, opts);
   };
   assert.deepEqual(await githubStore.getUsers(), REGISTRO);
+});
+
+/* La lectura del camino caliente no debe pasar por api.github.com: se
+   colgaba y Vercel devolvía 504. Va por la CDN, con presupuesto. */
+await check('getUsers lee por la CDN, no por la API de GitHub', async () => {
+  const archivoEnRepo = JSON.parse(Buffer.from(subido.content, 'base64').toString('utf8'));
+  resetCache();
+  const vistas = [];
+  globalThis.fetch = async (url, opts = {}) => {
+    vistas.push(String(url));
+    if (String(url).includes('raw.githubusercontent.com')) {
+      return new Response(JSON.stringify(archivoEnRepo), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response('no debería haber llegado aquí', { status: 500 });
+  };
+  const data = await githubStore.getUsers();
+  assert.deepEqual(data, REGISTRO, 'el registro no se recuperó desde la CDN');
+  assert.ok(
+    vistas.every((u) => u.includes('raw.githubusercontent.com')),
+    `la lectura pasó por la API: ${vistas.join(', ')}`
+  );
+});
+
+/* Si la CDN no responde (repo privado, red caída) no debe reventar:
+   cae a la API de GitHub, que es más lenta pero funciona. */
+await check('si la CDN falla, la lectura cae a la API de GitHub', async () => {
+  const archivoEnRepo = JSON.parse(Buffer.from(subido.content, 'base64').toString('utf8'));
+  resetCache();
+  const vistas = [];
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    vistas.push(u);
+    if (u.includes('raw.githubusercontent.com')) throw new Error('ECONNRESET');
+    if (u.includes('api.github.com')) {
+      return new Response(JSON.stringify(archivoEnRepo), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response('?');
+  };
+  const data = await githubStore.getUsers();
+  assert.deepEqual(data, REGISTRO, 'no se recuperó por la API tras fallar la CDN');
+  assert.ok(vistas.some((u) => u.includes('raw.githubusercontent.com')), 'no intentó la CDN');
+  assert.ok(vistas.some((u) => u.includes('api.github.com')), 'no intentó la API de respaldo');
+});
+
+/* Si todo falla, el error debe ser un error: nunca un 504 sin pistas. */
+await check('si GitHub no responde, el error lo dice', async () => {
+  resetCache();
+  globalThis.fetch = async () => {
+    throw new Error('ECONNRESET');
+  };
+  await assert.rejects(() => githubStore.getUsers(), /ECONNRESET|GitHub/);
+});
+
+/* putAsset sube binarios: no debe pasar por JSON.stringify. */
+await check('putAsset sube el binario tal cual', async () => {
+  const bytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 1, 2, 3, 4]);
+  let cuerpo;
+  globalThis.fetch = async (url, opts = {}) => {
+    const u = String(url);
+    if ((opts.method || 'GET') === 'PUT') {
+      cuerpo = JSON.parse(Buffer.from(opts.body).toString('utf8'));
+      return new Response('{}', { status: 200 });
+    }
+    return new Response('Not Found', { status: 404 });
+  };
+  await githubStore.putAsset('img/prueba.png', bytes.toString('base64'));
+  const subido2 = Buffer.from(cuerpo.content, 'base64');
+  assert.ok(subido2.equals(bytes), 'los bytes no llegaron intactos al repo');
 });
 
 await check('sin SESSION_SECRET no se escribe nada en claro', async () => {

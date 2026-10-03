@@ -213,6 +213,10 @@ function abrirEditor(id) {
   $('f_meta').value = p?.meta ?? '';
   $('f_destacado').checked = p?.destacado ?? false;
   $('f_pendiente').checked = p?.pendiente ?? false;
+  // El selector de archivo no guarda nada: si no, al abrir otro proyecto
+  // seguiría apuntando al archivo anterior y se subiría por error.
+  $('f_archivo').value = '';
+  $('subir_estado').textContent = '';
 
   pintarSelectCategorias(p?.categoria);
   previsualizar();
@@ -231,6 +235,53 @@ function previsualizar() {
   img.src = ruta;
   img.alt = $('f_alt').value.trim() || $('f_titulo').value.trim() || 'Vista previa';
   img.hidden = false;
+}
+
+/* ---------- Subida de imágenes ---------- */
+
+const MAX_SUBIDA = 4 * 1024 * 1024;
+
+function aBase64(file) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+    fr.onload = () => resolve(String(fr.result).split(',')[1] || '');
+    fr.readAsDataURL(file);
+  });
+}
+
+async function subirImagen() {
+  const entrada = $('f_archivo');
+  const estado = $('subir_estado');
+  const boton = $('btn_subir');
+  const archivo = entrada.files?.[0];
+
+  if (!archivo) {
+    estado.textContent = 'Elige primero un archivo.';
+    return;
+  }
+  if (archivo.size > MAX_SUBIDA) {
+    estado.textContent =
+      `Esa imagen pesa ${(archivo.size / 1024 / 1024).toFixed(1)} MB y el tope son 4 MB.`;
+    return;
+  }
+
+  boton.disabled = true;
+  estado.textContent = 'Subiendo…';
+  try {
+    const base64 = await aBase64(archivo);
+    // El nombre del archivo no se envía: el servidor rehace la ruta
+    // desde cero. Aquí solo se manda como pista para el nombre.
+    const nombre = $('f_titulo').value.trim() || archivo.name.replace(/\.[^.]+$/, '');
+    const r = await api('/api/upload', { method: 'POST', body: { nombre, base64 } });
+    $('f_imagen').value = r.ruta;
+    estado.textContent = 'Subida. Falta guardar el proyecto para publicarlo.';
+    previsualizar();
+  } catch (e) {
+    estado.textContent = e.message;
+  } finally {
+    boton.disabled = false;
+  }
 }
 
 function slugify(s, fallback) {
@@ -517,6 +568,8 @@ $('addCatBtn').addEventListener('click', añadirCategoria);
 $('userForm').addEventListener('submit', crearUsuario);
 $('toastClose').addEventListener('click', () => ($('toast').hidden = true));
 $('f_imagen').addEventListener('input', previsualizar);
+$('btn_subir').addEventListener('click', subirImagen);
+$('f_archivo').addEventListener('change', () => { $('subir_estado').textContent = ''; });
 $('f_titulo').addEventListener('input', previsualizar);
 $('f_alt').addEventListener('input', previsualizar);
 

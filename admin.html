@@ -136,10 +136,15 @@
             <input type="text" id="f_duracion" placeholder="12:40">
           </div>
 
-          <div class="field">
+          <div class="field field--full">
             <label for="f_imagen">Imagen <span aria-hidden="true">*</span></label>
+            <div class="upload">
+              <input type="file" id="f_archivo" accept=".svg,.png,.jpg,.jpeg,.webp,.avif,image/svg+xml,image/png,image/jpeg,image/webp,image/avif">
+              <button type="button" class="btn btn--sm" id="btn_subir">Subir imagen</button>
+              <span class="upload__estado" id="subir_estado" role="status"></span>
+            </div>
             <input type="text" id="f_imagen" placeholder="img/encajonado.svg" required>
-            <small class="field__hint">Ruta dentro de <code>img/</code>. SVG, PNG, JPG, WebP o AVIF.</small>
+            <small class="field__hint">Sube el archivo y la ruta se rellena sola. También puedes escribirla a mano: va dentro de <code>img/</code> y admite SVG, PNG, JPG, WebP o AVIF.</small>
             <small class="field__error" data-error-for="f_imagen"></small>
             <img class="field__preview" id="f_preview" src="img/encajonado.svg" alt="Vista previa de la imagen" hidden>
           </div>
@@ -164,6 +169,7 @@
           <div class="field field--full">
             <label for="f_meta">Línea de metadatos</label>
             <input type="text" id="f_meta" placeholder="Muestra anual · 12 de mayo de 2026">
+            <small class="field__hint">La frase corta con dos datos que aparece en la tarjeta, bajo el título: qué pasó y cuándo. Se separa con <code>·</code>. Ej.: <em>Muestra anual · 12 de mayo de 2026</em>. Opcional: si lo dejas vacío, no sale nada.</small>
           </div>
 
           <div class="field field--full checks">
