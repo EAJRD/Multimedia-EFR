@@ -8,7 +8,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, dirname } from 'node:path';
@@ -31,6 +31,10 @@ process.env.DATABASE_PATH = DB;
 process.env.STORE = 'sqlite';
 process.env.NODE_ENV = 'development';
 
+// El directorio temporal puede no existir: /tmp se limpia. Sin esto
+// better-sqlite3 responde "Cannot open database because the directory does
+// not exist" y toda la suite se cae con 500 en cada prueba.
+mkdirSync(dirname(DB), { recursive: true });
 for (const p of [DB, DB + '-wal', DB + '-shm']) {
   try { rmSync(p); } catch { /* no existía */ }
 }

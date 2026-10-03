@@ -7,7 +7,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, dirname } from 'node:path';
@@ -32,6 +32,10 @@ process.env.NODE_ENV = 'development';
 // El límite se agota en el test de fuerza bruta, que va el último.
 const MAX_ATTEMPTS = Number(process.env.LOGIN_MAX_ATTEMPTS || 100);
 
+// El directorio temporal puede no existir: /tmp se limpia. Sin esto
+// better-sqlite3 responde "Cannot open database because the directory does
+// not exist" y toda la suite se cae con 500 en cada prueba.
+mkdirSync(dirname(DB), { recursive: true });
 for (const p of [DB, DB + '-wal', DB + '-shm']) {
   try { rmSync(p); } catch { /* no existía */ }
 }
@@ -249,7 +253,14 @@ await check('un despliegue en Vercel sin variables da 503 con el diagnóstico', 
     // Sin variables, el sitio sigue siendo legible: solo lectura.
     const listado = await fetch(`http://127.0.0.1:${PORT_RO}/api/projects`);
     assert.equal(listado.status, 200, 'el contenido público debe seguir leyéndose');
-    assert.equal((await listado.json()).proyectos.length, 7);
+    // Y debe traer los 7 proyectos aunque el archivo no esté en disco. Antes
+    // contestaba 200 con cero, en silencio, y la portada se sostenía solo con
+    // el HTML de respaldo.
+    assert.equal(
+      (await listado.json()).proyectos.length,
+      7,
+      'sin el archivo en disco, el contenido debe venir del paquete'
+    );
 
     const anon2 = await (await fetch(`http://127.0.0.1:${PORT_RO}/api/auth`)).json();
     assert.equal(anon2.arranque, true, 'sin registro, debe ofrecer arrancar');
