@@ -9,6 +9,9 @@
     },
     "api/projects.js": {
       "maxDuration": 10
+    },
+    "api/upload.js": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
