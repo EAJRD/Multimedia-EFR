@@ -4,36 +4,55 @@
   "outputDirectory": ".",
   "framework": null,
   "functions": {
-    "api/auth.js": {
-      "maxDuration": 10
-    },
-    "api/projects.js": {
-      "maxDuration": 10
-    },
-    "api/upload.js": {
+    "api/*.js": {
       "maxDuration": 10
     }
   },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path" },
-    { "source": "/(.*)", "destination": "/$1" }
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
       ]
     },
     {
       "source": "/admin.html",
-      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     },
     {
       "source": "/api/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     }
   ]
 }
